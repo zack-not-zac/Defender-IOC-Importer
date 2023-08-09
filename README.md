@@ -43,7 +43,7 @@ options:
   -t IOC_Title          Title of IOC's
   --hunting_queries     Generate a KQL query to hunt for IOC's
   --no_alerts           IOC's should not generate alerts
-  --save_URLs           Saves URL's as URL indicators. If false, extracts the domain & saves as domain IOC.
+  --save_URLs           Saves URL's as URL indicators. By default, the script extracts the domain & saves as a domain IOC.
   -severity {Informational,Low,Medium,High}
                         Set severity for IOC's
   -category {Malware,UnwantedSoftware,Ransomware,CommandandControl,LateralMovement,Persistence,PrivilegeEscalation,SuspiciousActivity,Exploit,InitialAccess,Execution,Exfiltration,Collection,CredentialAccess,DefenseEvasion,Discovery,Impact}
