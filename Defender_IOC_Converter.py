@@ -17,7 +17,7 @@ def get_args():
     # Toggle Args
     parser.add_argument("--hunting_queries",help="Generate a KQL query to hunt for IOC's",action="store_true",)
     parser.add_argument("--no_alerts",help="IOC's should not generate alerts",action="store_false")
-    parser.add_argument("--save_URLs",help="Saves URL's as URL indicators. If false, extracts the domain & saves as domain IOC.",action="store_true")
+    parser.add_argument("--save_URLs",help="Saves URL's as URL indicators. By default, the script extracts the domain & saves as a domain IOC.",action="store_true")
 
     # Args with restricted choices
     parser.add_argument("-severity",help="Set severity for IOC's",default="Low",choices=["Informational","Low","Medium","High"])
