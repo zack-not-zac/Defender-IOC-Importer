@@ -131,7 +131,7 @@ def create_hunting_queries(df):
     if len(IPs) > 0:
         print ("\n-------- IP Search --------\nDeviceNetworkEvents\n| where Timestamp > ago(30d) and RemoteIP in (\"" + "\",\"".join(IPs) + "\")")
     if len(SHA256_list) > 0 or len(SHA1_list) > 0 or len(MD5_list) > 0:
-        print ("\n--------File Hash Search --------\nDeviceFileEvents\n| where Timestamp > ago(30d) and (SHA256 in~ (\"" + "\",\"".join(SHA256_list) + "\") or SHA1 in~ (\"" + "\",\"".join(SHA1_list) + "\") or MD5 in~ (\"" + "\",\"".join(MD5_list) + "\"))")
+        print ("\n-------- File Hash Search --------\nDeviceFileEvents\n| where Timestamp > ago(30d) and (SHA256 in~ (\"" + "\",\"".join(SHA256_list) + "\") or SHA1 in~ (\"" + "\",\"".join(SHA1_list) + "\") or MD5 in~ (\"" + "\",\"".join(MD5_list) + "\"))")
 
 def main():
     args = get_args()
