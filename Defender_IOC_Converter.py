@@ -5,6 +5,7 @@ import argparse
 from datetime import datetime, timedelta
 from re import search as regex_search, findall as regex_find, sub as regex_sub
 from pathlib import Path
+from termcolor import colored as text_colour
 
 def get_args():
     parser = argparse.ArgumentParser(description="Converts IOC lists to Defender format.")
@@ -92,7 +93,6 @@ def format_item(item,expiry_dict, args):
         action="BlockAndRemediate"                                              # Valid actions for hash IOC are: Allow, Audit, Warn, Block, Block & remediate
         item_obj = [IOC_type,item,convert_timestamp(expiry_dict[IOC_type]),action]
     else:
-        print("IOC type for " + str(item) + " not found. Skipping...")
         return None
 
     return_list = [*item_obj,*const_columns]                                    # Joins the IOC variables & constant columns across all IOCs
@@ -101,14 +101,17 @@ def format_item(item,expiry_dict, args):
 
 def convert_df(IOCs,expiry_dict,args):
     df = DataFrame(columns=["IndicatorType","IndicatorValue","ExpirationTime","Action","Severity","Title","Description","RecommendedActions","RbacGroups","Category","MitreTechniques","GenerateAlert"])
+    invalid_iocs=list()
 
     for i, item in IOCs.items():
         temp = item.replace("[.]",".")                                              # Removes any defanging
         IOC_entry = format_item(temp,expiry_dict,args)
         if IOC_entry:
             df.loc[len(df)] = IOC_entry
+        else:
+            invalid_iocs.append(item)
 
-    return df
+    return df,invalid_iocs
 
 def create_hunting_queries(df):
     SHA256_list = list()
@@ -129,14 +132,17 @@ def create_hunting_queries(df):
         elif row["IndicatorType"] == "FileMd5":
             MD5_list.append(row["IndicatorValue"])
 
-    print("\nHunting Queries:")
+    print("\n-------- Hunting Queries --------")
 
     if len(Domains) > 0:
-        print ("\n-------- Domain Search --------\nDeviceNetworkEvents\n| where Timestamp > ago(30d) and RemoteUrl in~ (\"" + "\",\"".join(Domains) + "\")")
+        print(text_colour("\n# Domain Hunting Search","green"))
+        print("DeviceNetworkEvents\n| where Timestamp > ago(30d) and RemoteUrl in~ (\"" + "\",\"".join(Domains) + "\")")
     if len(IPs) > 0:
-        print ("\n-------- IP Search --------\nDeviceNetworkEvents\n| where Timestamp > ago(30d) and RemoteIP in (\"" + "\",\"".join(IPs) + "\")")
+        print(text_colour("\n# IP Hunting Search","green"))
+        print("DeviceNetworkEvents\n| where Timestamp > ago(30d) and RemoteIP in (\"" + "\",\"".join(IPs) + "\")")
     if len(SHA256_list) > 0 or len(SHA1_list) > 0 or len(MD5_list) > 0:
-        print ("\n-------- File Hash Search --------\nDeviceFileEvents\n| where Timestamp > ago(30d) and (SHA256 in~ (\"" + "\",\"".join(SHA256_list) + "\") or SHA1 in~ (\"" + "\",\"".join(SHA1_list) + "\") or MD5 in~ (\"" + "\",\"".join(MD5_list) + "\"))")
+        print(text_colour("\n# File Hash Hunting Search","green"))
+        print("DeviceFileEvents\n| where Timestamp > ago(30d) and (SHA256 in~ (\"" + "\",\"".join(SHA256_list) + "\") or SHA1 in~ (\"" + "\",\"".join(SHA1_list) + "\") or MD5 in~ (\"" + "\",\"".join(MD5_list) + "\"))")
 
 def main():
     args = get_args()
@@ -149,15 +155,18 @@ def main():
               "FileSha256":args.hash_expiry,
               "FileMd5":args.hash_expiry}
 
-    Defender_df = convert_df(IOC_df[col],expiry_dict, args).drop_duplicates(subset="IndicatorValue")
+    Defender_df,invalid_iocs = convert_df(IOC_df[col],expiry_dict, args)
+    Defender_df = Defender_df.drop_duplicates(subset="IndicatorValue")
 
     print(Defender_df)
     Defender_df.to_csv(args.outfile,index=False)
+    for item in invalid_iocs:
+        print(text_colour("\nWARNING: IOC type for '" + str(item) + "' not found. IOC was not added.","red"))
     print("\nSaved as " + str(args.outfile))
 
     if args.hunting_queries:
         create_hunting_queries(Defender_df)
-    
+
     print("\n")
 
 if __name__ == "__main__":
