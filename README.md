@@ -1,8 +1,5 @@
 # Defender IOC Formatter
-A simple Python script to convert CSV IOC lists to the format accepted by Microsoft Defender for Endpoint (MDE).
-
-## Additional Features
-- Script has the ability to generate KQL queries for the most common IOC types using the "--hunting_queries" flag.
+A simple Python script to convert CSV IOC lists to the format accepted by Microsoft Defender for Endpoint (MDE). The script can also automatically generate KQL queries for the most common IOC types using the ```"--hunting_queries"``` argument.
 
 ## Installation
 This script requires Python 3 to run.
