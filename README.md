@@ -1,5 +1,5 @@
 # Defender IOC Formatter
-A simple Python script to convert CSV IOC lists to Defender format
+A simple Python script to convert CSV IOC lists to the format accepted by Microsoft Defender for Endpoint (MDE).
 
 ## Installation
 This script requires Python 3 to run.
