@@ -35,7 +35,10 @@ def get_args():
     return parser.parse_args()
 
 def convert_timestamp(date):
-    return date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    if date:
+        return date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    else:
+        return ""
 
 def format_item(item,expiry_dict, args):
     sev = args.severity
