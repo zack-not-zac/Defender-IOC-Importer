@@ -10,7 +10,7 @@ def get_args():
     parser = argparse.ArgumentParser(description="Converts IOC lists to Defender format.")
 
     # Required Args
-    parser.add_argument("file",help="Path to NCSC IOC file", metavar="IOC_File")
+    parser.add_argument("file",help="Path to IOC file", metavar="IOC_File")
     parser.add_argument("-c",help="Name of the column containing the IOC's",metavar="IOC_Column",required=True)
     parser.add_argument("-t",help="Title of IOC's", metavar="IOC_Title",required=True)
 
