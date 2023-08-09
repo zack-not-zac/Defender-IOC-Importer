@@ -91,6 +91,9 @@ def format_item(item,expiry_dict, args):
         IOC_type="FileMd5"
         action="BlockAndRemediate"                                              # Valid actions for hash IOC are: Allow, Audit, Warn, Block, Block & remediate
         item_obj = [IOC_type,item,convert_timestamp(expiry_dict[IOC_type]),action]
+    else:
+        print("IOC type for " + str(item) + " not found. Skipping...")
+        return None
 
     return_list = [*item_obj,*const_columns]                                    # Joins the IOC variables & constant columns across all IOCs
 
@@ -101,7 +104,9 @@ def convert_df(IOCs,expiry_dict,args):
 
     for i, item in IOCs.items():
         temp = item.replace("[.]",".")                                              # Removes any defanging
-        df.loc[len(df)] = format_item(temp,expiry_dict,args)
+        IOC_entry = format_item(temp,expiry_dict,args)
+        if IOC_entry:
+            df.loc[len(df)] = IOC_entry
 
     return df
 
