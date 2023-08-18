@@ -75,7 +75,7 @@ def format_item(item,expiry_dict, args):
         action="Block"                                                          # Valid actions for IP IOC are: Allow, Audit, Warn, Block
         item_obj = [IOC_type,item,convert_timestamp(expiry_dict[IOC_type]),action]
     elif regex_search(domain_re,item):                                          # Domain IOC
-        IOC_type="Domain"
+        IOC_type="DomainName"
         action="Block"                                                          # Valid actions for domain/URL IOC are: Allow, Audit, Warn, Block
         indicator=regex_sub("^https\:\/\/|^http\:\/\/","",item)                 # Removes HTTP & HTTPS
         indicator = regex_find(domain_re,indicator)[0]                          # Extracts domain from a URL
@@ -121,7 +121,7 @@ def create_hunting_queries(df):
     Domains=list()
 
     for i, row in df.iterrows():
-        if row["IndicatorType"] == "Domain" or row["IndicatorType"] == "Url":
+        if row["IndicatorType"] == "DomainName" or row["IndicatorType"] == "Url":
             Domains.append(row["IndicatorValue"])
         elif row["IndicatorType"] == "IpAddress":
             IPs.append(row["IndicatorValue"])
@@ -148,7 +148,7 @@ def main():
     args = get_args()
     filepath, col = args.file, args.c
     IOC_df = read_csv(filepath)
-    expiry_dict = {"Domain":args.domain_expiry,
+    expiry_dict = {"DomainName":args.domain_expiry,
               "Url":args.domain_expiry,
               "IpAddress":args.IP_expiry,
               "FileSha1":args.hash_expiry,
