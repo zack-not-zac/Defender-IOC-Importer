@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-from pandas import read_csv, DataFrame
+from pandas import read_csv, DataFrame, Series, concat
 import argparse
 from datetime import datetime, timedelta
 from re import search as regex_search, findall as regex_find, sub as regex_sub
 from pathlib import Path
 from termcolor import colored as text_colour
+from ipaddress import IPv4Network
 
 def get_args():
     parser = argparse.ArgumentParser(description="Converts IOC lists to Defender format.")
@@ -14,6 +15,11 @@ def get_args():
     parser.add_argument("file",help="Path to IOC file", metavar="IOC_File")
     parser.add_argument("-c",help="Name of the column containing the IOC's",metavar="IOC_Column",required=True)
     parser.add_argument("-t",help="Title of IOC's", metavar="IOC_Title",required=True)
+
+    # # Debug
+    # parser.add_argument("-file",help="Path to IOC file", metavar="IOC_File", default="~/Downloads/NCSC_IOCs_2023-08-08-2023-08-14.csv")
+    # parser.add_argument("-c",help="Name of the column containing the IOC's",metavar="IOC_Column",default="Indicator Value")
+    # parser.add_argument("-t",help="Title of IOC's", metavar="IOC_Title",default="Title")
 
     # Toggle Args
     parser.add_argument("--hunting_queries",help="Generate a KQL query to hunt for IOC's",action="store_true",)
@@ -144,6 +150,27 @@ def create_hunting_queries(df):
         print(text_colour("\n# File Hash Hunting Search","green"))
         print("DeviceFileEvents\n| where Timestamp > ago(30d) and (SHA256 in~ (\"" + "\",\"".join(SHA256_list) + "\") or SHA1 in~ (\"" + "\",\"".join(SHA1_list) + "\") or MD5 in~ (\"" + "\",\"".join(MD5_list) + "\"))")
 
+def parse_cidr(CIDR):
+    IPs = IPv4Network(CIDR)
+    return_data = list()
+    for IP in IPs:
+        return_data.append(str(IP))
+    return Series(return_data)
+
+def expand_cidr_ranges(IOCs):# Expands any CIDR ranges in the given series, returns the Series with CIDR removed & IP's added
+    drop_indexes = set()
+
+    for index,IOC in IOCs.items():
+        temp = IOC.replace("[.]",".")                                       # Removes any defanging
+        if regex_search("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}",temp):
+            drop_indexes.add(index)                                         # Adds index to indexes to be removed
+            IOCs = concat([IOCs,parse_cidr(temp)], ignore_index=True)      # Add list of IP's from CIDR
+            
+    for i in drop_indexes:
+        IOCs = IOCs.drop(i)
+
+    return IOCs
+
 def main():
     args = get_args()
     filepath, col = args.file, args.c
@@ -154,8 +181,10 @@ def main():
               "FileSha1":args.hash_expiry,
               "FileSha256":args.hash_expiry,
               "FileMd5":args.hash_expiry}
+    
+    IOCs = expand_cidr_ranges(IOC_df[col])
 
-    Defender_df,invalid_iocs = convert_df(IOC_df[col],expiry_dict, args)
+    Defender_df,invalid_iocs = convert_df(IOCs,expiry_dict, args)
     Defender_df = Defender_df.drop_duplicates(subset="IndicatorValue")
 
     print(Defender_df)
