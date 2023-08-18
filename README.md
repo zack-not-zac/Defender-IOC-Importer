@@ -1,5 +1,5 @@
 # Defender IOC Formatter
-A simple Python script to convert CSV documents containing indicators of compromise (IOC's) to the format accepted by Microsoft Defender for Endpoint (MDE). The script can also automatically generate KQL queries for the most common IOC types using the ```"--hunting_queries"``` argument.
+A simple Python script to convert CSV documents containing indicators of compromise (IOC's) to the format accepted by Microsoft Defender for Endpoint (MDE). The script can also automatically generate KQL queries for the most common IOC types using the ```"--hunting_queries"``` argument & automatically parses CIDR ranges.
 
 ## Installation
 This script requires Python 3 to run.
