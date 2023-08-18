@@ -136,13 +136,13 @@ def create_hunting_queries(df):
     print("\n-------- Hunting Queries --------")
 
     if len(Domains) > 0:
-        print(text_colour("\n# Domain Hunting Search","green"))
+        print(text_colour("\n// Domain Hunting Search","green"))
         print("DeviceNetworkEvents\n| where Timestamp > ago(30d) and RemoteUrl in~ (\"" + "\",\"".join(Domains) + "\")")
     if len(IPs) > 0:
-        print(text_colour("\n# IP Hunting Search","green"))
+        print(text_colour("\n// IP Hunting Search","green"))
         print("DeviceNetworkEvents\n| where Timestamp > ago(30d) and RemoteIP in (\"" + "\",\"".join(IPs) + "\")")
     if len(SHA256_list) > 0 or len(SHA1_list) > 0 or len(MD5_list) > 0:
-        print(text_colour("\n# File Hash Hunting Search","green"))
+        print(text_colour("\n// File Hash Hunting Search","green"))
         print("DeviceFileEvents\n| where Timestamp > ago(30d) and (SHA256 in~ (\"" + "\",\"".join(SHA256_list) + "\") or SHA1 in~ (\"" + "\",\"".join(SHA1_list) + "\") or MD5 in~ (\"" + "\",\"".join(MD5_list) + "\"))")
 
 def parse_cidr(CIDR):
