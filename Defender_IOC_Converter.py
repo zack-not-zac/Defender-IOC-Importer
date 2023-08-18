@@ -16,11 +16,6 @@ def get_args():
     parser.add_argument("-c",help="Name of the column containing the IOC's",metavar="IOC_Column",required=True)
     parser.add_argument("-t",help="Title of IOC's", metavar="IOC_Title",required=True)
 
-    # # Debug
-    # parser.add_argument("-file",help="Path to IOC file", metavar="IOC_File", default="~/Downloads/NCSC_IOCs_2023-08-08-2023-08-14.csv")
-    # parser.add_argument("-c",help="Name of the column containing the IOC's",metavar="IOC_Column",default="Indicator Value")
-    # parser.add_argument("-t",help="Title of IOC's", metavar="IOC_Title",default="Title")
-
     # Toggle Args
     parser.add_argument("--hunting_queries",help="Generate a KQL query to hunt for IOC's",action="store_true",)
     parser.add_argument("--no_alerts",help="IOC's should not generate alerts",action="store_false")
