@@ -161,8 +161,10 @@ def main():
     print(Defender_df)
     Defender_df.to_csv(args.outfile,index=False)
     for item in invalid_iocs:
-        print(text_colour("\nWARNING: IOC type for '" + str(item) + "' not found. IOC was not added.","red"))
-    print("\nSaved as " + str(args.outfile))
+        print(text_colour("[" + text_colour("warning","red") + "] IOC type for '" + str(item) + "' not found. IOC was not added.","red"))
+
+    
+    print("\n[" + text_colour("notice","blue") + "] Saved as " + str(args.outfile))
 
     if args.hunting_queries:
         create_hunting_queries(Defender_df)
