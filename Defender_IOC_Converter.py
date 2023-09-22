@@ -74,7 +74,11 @@ def format_item(item,expiry_dict, args):
     elif regex_search(ip_re,item):                                              # IP IOC
         IOC_type="IpAddress"
         action="Block"                                                          # Valid actions for IP IOC are: Allow, Audit, Warn, Block
-        item_obj = [IOC_type,item,convert_timestamp(expiry_dict[IOC_type]),action]
+        extracted_ip=regex_search(ip_re,item).group(0)                          # Extracts the IP if it is in a URL
+        if extracted_ip:
+            item_obj = [IOC_type,extracted_ip,convert_timestamp(expiry_dict[IOC_type]),action]
+        else:
+            item_obj = [IOC_type,item,convert_timestamp(expiry_dict[IOC_type]),action]
     elif regex_search(domain_re,item):                                          # Domain IOC
         IOC_type="DomainName"
         action="Block"                                                          # Valid actions for domain/URL IOC are: Allow, Audit, Warn, Block
