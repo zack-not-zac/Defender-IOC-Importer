@@ -33,7 +33,7 @@ def get_args():
     parser.add_argument("-actions",help="Set recommended actions for IOC's",default="")
     parser.add_argument("-groups",help="Set RBAC groups for IOC's (comma seperated)",default="")
     parser.add_argument("-techniques",help="Set MITRE Techniques for IOC's (comma seperated)",default="")
-    parser.add_argument("-outfile",help="Choose output file path.",default="output.csv")
+    parser.add_argument("-outfile",help="Choose output file path.")
     return parser.parse_args()
 
 def convert_timestamp(date):
@@ -187,12 +187,17 @@ def main():
     Defender_df = Defender_df.drop_duplicates(subset="IndicatorValue")
 
     print(Defender_df)
-    Defender_df.to_csv(args.outfile,index=False)
     for item in invalid_iocs:
         print(text_colour("[" + text_colour("warning","red") + "] IOC type for '" + str(item) + "' not found. IOC was not added.","red"))
 
+    if args.outfile:
+        outfile = str(args.outfile)
+        Defender_df.to_csv(args.outfile,index=False)
+    else:
+        outfile = str("Formatted_" + Path(filepath).stem + ".csv")
+        Defender_df.to_csv(outfile,index=False)
     
-    print("\n[" + text_colour("notice","blue") + "] Saved as " + str(args.outfile))
+    print("\n[" + text_colour("notice","blue") + "] Saved as " + outfile)
 
     if args.hunting_queries:
         create_hunting_queries(Defender_df)
