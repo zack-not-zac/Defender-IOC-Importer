@@ -160,9 +160,9 @@ def expand_cidr_ranges(IOCs):# Expands any CIDR ranges in the given series, retu
     drop_indexes = set()
 
     for index,IOC in IOCs.items():
-        temp = IOC.replace("[.]",".")                                       # Removes any defanging
-        if regex_search("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}",temp):
-            drop_indexes.add(index)                                         # Adds index to indexes to be removed
+        temp = IOC.replace("[.]",".")                                      # Removes any defanging
+        if regex_search("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}$",temp):
+            drop_indexes.add(index)                                        # Adds index to indexes to be removed
             IOCs = concat([IOCs,parse_cidr(temp)], ignore_index=True)      # Add list of IP's from CIDR
             
     for i in drop_indexes:
