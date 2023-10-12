@@ -148,7 +148,7 @@ def create_hunting_queries(df):
 
     if len(Domains) > 0:
         print(text_colour("\n// Domain Hunting Search","green"))
-        print("DeviceNetworkEvents\n| where Timestamp > ago(30d) and RemoteUrl in~ (\"" + "\",\"".join(Domains) + "\")")
+        print("DeviceNetworkEvents\n| where Timestamp > ago(30d) and RemoteUrl has_any (\"" + "\",\"".join(Domains) + "\")")
     if len(IPs) > 0:
         print(text_colour("\n// IP Hunting Search","green"))
         print("DeviceNetworkEvents\n| where Timestamp > ago(30d) and RemoteIP in (\"" + "\",\"".join(IPs) + "\")")
