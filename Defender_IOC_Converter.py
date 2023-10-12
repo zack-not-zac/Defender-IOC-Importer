@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# TODO: Finish chunking code
+
 from pandas import read_csv, DataFrame, Series, concat
 import argparse
 from datetime import datetime, timedelta
@@ -12,9 +14,14 @@ def get_args():
     parser = argparse.ArgumentParser(description="Converts IOC lists to Defender format.")
 
     # Required Args
-    parser.add_argument("file",help="Path to IOC file", metavar="IOC_File")
-    parser.add_argument("-c",help="Name of the column containing the IOC's",metavar="IOC_Column",required=True)
-    parser.add_argument("-t",help="Title of IOC's", metavar="IOC_Title",required=True)
+    # parser.add_argument("file",help="Path to IOC file", metavar="IOC_File")
+    # parser.add_argument("-c",help="Name of the column containing the IOC's",metavar="IOC_Column",required=True)
+    # parser.add_argument("-t",help="Title of IOC's", metavar="IOC_Title",required=True)
+
+    # Debug
+    parser.add_argument("-file",help="Path to IOC file", metavar="IOC_File",default="~/Downloads/NCSC_IOCs_2023-10-03-2023-10-09.csv")
+    parser.add_argument("-c",help="Name of the column containing the IOC's",metavar="IOC_Column",default="Indicator Value")
+    parser.add_argument("-t",help="Title of IOC's", metavar="IOC_Title",default="Test")
 
     # Toggle Args
     parser.add_argument("--hunting_queries",help="Generate a KQL query to hunt for IOC's",action="store_true",)
@@ -170,6 +177,26 @@ def expand_cidr_ranges(IOCs):# Expands any CIDR ranges in the given series, retu
 
     return IOCs
 
+def write_file(df,outfile):
+    df.to_csv(outfile, index=False)
+    print("\n[" + text_colour("notice","blue") + "] Saved as " + outfile)
+
+def split_dataframe(df):
+    l = len(df.index)
+    chunks=list()
+    chunk_start=0
+    chunk_end=498
+    while l > 0:
+        chunks.append(df.iloc[chunk_start:chunk_end])       # Append first chunk to list
+        l -= 499                                            # subtract 500 from length
+        chunk_start = chunk_end + 1                         # set the chunk start to the index after the end of the previous chunk
+        if l > 499:                                         # if length is still > 500
+            chunk_end += 499                                # set chunk end to 500 rows down
+        else:
+            chunk_end = len(df.index) - 1                   # else, set the chunk end to the max row index
+
+    return chunks
+
 def main():
     args = get_args()
     filepath, col = args.file, args.c
@@ -190,14 +217,25 @@ def main():
     for item in invalid_iocs:
         print(text_colour("[" + text_colour("warning","red") + "] IOC type for '" + str(item) + "' not found. IOC was not added.","red"))
 
-    if args.outfile:
-        outfile = str(args.outfile)
-        Defender_df.to_csv(args.outfile,index=False)
+    if len(Defender_df.index) > 500:
+        chunks = split_dataframe(Defender_df)
+        counter = 0
+        for chunk in chunks:
+            if args.outfile:
+                path = Path(str(args.outfile))
+                outfile = str(path.resolve())
+                # Add counting for custom filenames
+            else:
+                outfile = str("Formatted_" + Path(filepath).stem + "_" + str(counter) + ".csv")
+            write_file(chunk,outfile)
+            counter += 1
     else:
-        outfile = str("Formatted_" + Path(filepath).stem + ".csv")
-        Defender_df.to_csv(outfile,index=False)
-    
-    print("\n[" + text_colour("notice","blue") + "] Saved as " + outfile)
+        if args.outfile:
+            outfile = str(args.outfile)
+        else:
+            outfile = str("Formatted_" + Path(filepath).stem + ".csv")
+        
+        write_file(chunk,outfile)
 
     if args.hunting_queries:
         create_hunting_queries(Defender_df)
