@@ -14,14 +14,9 @@ def get_args():
     parser = argparse.ArgumentParser(description="Converts IOC lists to Defender format.")
 
     # Required Args
-    # parser.add_argument("file",help="Path to IOC file", metavar="IOC_File")
-    # parser.add_argument("-c",help="Name of the column containing the IOC's",metavar="IOC_Column",required=True)
-    # parser.add_argument("-t",help="Title of IOC's", metavar="IOC_Title",required=True)
-
-    # Debug
-    parser.add_argument("-file",help="Path to IOC file", metavar="IOC_File",default="~/Downloads/NCSC_IOCs_2023-10-03-2023-10-09.csv")
-    parser.add_argument("-c",help="Name of the column containing the IOC's",metavar="IOC_Column",default="Indicator Value")
-    parser.add_argument("-t",help="Title of IOC's", metavar="IOC_Title",default="Test")
+    parser.add_argument("file",help="Path to IOC file", metavar="IOC_File")
+    parser.add_argument("-c",help="Name of the column containing the IOC's",metavar="IOC_Column",required=True)
+    parser.add_argument("-t",help="Title of IOC's", metavar="IOC_Title",required=True)
 
     # Toggle Args
     parser.add_argument("--hunting_queries",help="Generate a KQL query to hunt for IOC's",action="store_true",)
