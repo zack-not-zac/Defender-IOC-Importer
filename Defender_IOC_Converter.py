@@ -54,6 +54,7 @@ def format_item(item,expiry_dict, args):
     category=args.category
     techniques=args.techniques
     extract_URLs = args.save_URLs
+    item=str(item).strip()
 
     if len(desc) == 0:
         desc = Path(args.file).stem
