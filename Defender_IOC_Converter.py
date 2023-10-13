@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# TODO: Finish chunking code
-
 from pandas import read_csv, DataFrame, Series, concat
 import argparse
 from datetime import datetime, timedelta
@@ -231,7 +229,7 @@ def main():
         else:
             outfile = str("Formatted_" + Path(filepath).stem + ".csv")
         
-        write_file(chunk,outfile)
+        write_file(Defender_df,outfile)
 
     if args.hunting_queries:
         create_hunting_queries(Defender_df)
