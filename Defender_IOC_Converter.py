@@ -62,7 +62,7 @@ def format_item(item,expiry_dict, args):
     url_re="[\w\.\-]+\/.{1,}"
     ip_re="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
     SHA256_re="^[A-Fa-f0-9]{64}$"
-    SHA1_re="^[a-f0-9]{40}$"
+    SHA1_re="^[A-Fa-f0-9]{40}$"
     MD5_re="^[a-fA-F\d]{32}$"
 
     const_columns = [sev,title,desc,actions,groups,category,techniques,str(alert).upper()]
