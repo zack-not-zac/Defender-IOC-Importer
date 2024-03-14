@@ -9,9 +9,15 @@ This script requires Python 3 to run.
 python3 -m venv "venv/"
 ```
 2. Activate the virtual environment.
+### MacOS & Linux
 ```
 source venv/bin/activate
 ```
+### Windows
+```
+source venv/Scripts/Activate.ps1
+```
+
 3. Install the necessary Python packages.
 ```
 python3 -m pip install -r requirements.txt
@@ -22,7 +28,7 @@ python3 -m pip install -r requirements.txt
 ### Example Command
 
 ```bash
-python3 Defender_IOC_Converter.py ~/Downloads/malware_IOCs.csv -c "Indicator Value" -t "Malware IOC's"
+python3 Defender_IOC_Converter.py ~/Downloads/malware_IOCs.csv -c "Indicator Value" -t "Malware IOC's" --hunting_queries
 ```
 
 ### Help
