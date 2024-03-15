@@ -142,13 +142,37 @@ def create_hunting_queries(df):
 
     if len(Domains) > 0:
         print(text_colour("\n// Domain Hunting Search","green"))
-        print("DeviceNetworkEvents\n| where Timestamp > ago(30d) and RemoteUrl has_any (\"" + "\",\"".join(Domains) + "\")")
+        print("let IOCs = dynamic([" + "\",\"".join(Domains) + "]);\nunion DeviceNetworkEvents, EmailUrlInfo, UrlClickEvents\n| where Timestamp > ago(30d) and (Url has_any (IOCs) or RemoteUrl has_any (IOCs) or AdditionalFields has_any (IOCs))\n| sort by Timestamp asc")
     if len(IPs) > 0:
         print(text_colour("\n// IP Hunting Search","green"))
         print("DeviceNetworkEvents\n| where Timestamp > ago(30d) and RemoteIP in (\"" + "\",\"".join(IPs) + "\")")
+        print("let IOCs = dynamic([" + "\",\"".join(IPs) + "]);\nunion DeviceNetworkEvents, CloudAppEvents, AADSignInEventsBeta\n| where Timestamp > ago(30d) and (IPAddress in (IOCs) or RemoteIP in (IOCs))\n| sort by Timestamp asc")
     if len(SHA256_list) > 0 or len(SHA1_list) > 0 or len(MD5_list) > 0:
         print(text_colour("\n// File Hash Hunting Search","green"))
-        print("DeviceFileEvents\n| where Timestamp > ago(30d) and (SHA256 in~ (\"" + "\",\"".join(SHA256_list) + "\") or SHA1 in~ (\"" + "\",\"".join(SHA1_list) + "\") or MD5 in~ (\"" + "\",\"".join(MD5_list) + "\"))")
+        SHA256_QueryString = "\",\"".join(SHA256_list)
+        SHA1_QueryString = "\",\"".join(SHA1_list)
+        MD5_QueryString = "\",\"".join(MD5_list)
+
+        QueryString = str()
+        WhereClause = "| where Timestamp > ago(30d) and ("
+        Filters = set()
+
+        if len(SHA256_QueryString) > 0:
+            QueryString += "let SHA256_IOCs = dynamic([" + SHA256_QueryString + "]);\n"
+            Filters.add("SHA256 in~ (SHA256_IOCs)")
+        
+        if len(SHA1_QueryString) > 0:
+            QueryString += "let SHA256_IOCs = dynamic([" + SHA1_QueryString + "]);\n"
+            Filters.add("SHA1 in~ (SHA1_IOCs)")
+
+        if len(SHA256_QueryString) > 0:
+            QueryString += "let MD5_IOCs = dynamic([" + MD5_QueryString + "]);\n"
+            Filters.add("MD5 in~ (MD5_IOCs)")
+        
+        WhereClause += " or ".join(Filters)
+        QueryString += "union DeviceFileEvents, DeviceImageLoadEvents, EmailAttachmentInfo, DeviceProcessEvents" + WhereClause + "\n| sort by Timestamp asc"
+        
+        print(QueryString)
 
 def parse_cidr(CIDR):
     IPs = IPv4Network(CIDR)
