@@ -142,11 +142,11 @@ def create_hunting_queries(df):
 
     if len(Domains) > 0:
         print(text_colour("\n// Domain Hunting Search","green"))
-        print("let IOCs = dynamic([" + "\",\"".join(Domains) + "]);\nunion DeviceNetworkEvents, EmailUrlInfo, UrlClickEvents\n| where Timestamp > ago(30d) and (Url has_any (IOCs) or RemoteUrl has_any (IOCs) or AdditionalFields has_any (IOCs))\n| sort by Timestamp asc")
+        print("let IOCs = dynamic([\"" + "\",\"".join(Domains) + "\"]);\nunion DeviceNetworkEvents, EmailUrlInfo, UrlClickEvents\n| where Timestamp > ago(30d) and (Url has_any (IOCs) or RemoteUrl has_any (IOCs) or AdditionalFields has_any (IOCs))\n| sort by Timestamp asc")
     if len(IPs) > 0:
         print(text_colour("\n// IP Hunting Search","green"))
         print("DeviceNetworkEvents\n| where Timestamp > ago(30d) and RemoteIP in (\"" + "\",\"".join(IPs) + "\")")
-        print("let IOCs = dynamic([" + "\",\"".join(IPs) + "]);\nunion DeviceNetworkEvents, CloudAppEvents, AADSignInEventsBeta\n| where Timestamp > ago(30d) and (IPAddress in (IOCs) or RemoteIP in (IOCs))\n| sort by Timestamp asc")
+        print("let IOCs = dynamic([\"" + "\",\"".join(IPs) + "\"]);\nunion DeviceNetworkEvents, CloudAppEvents, AADSignInEventsBeta\n| where Timestamp > ago(30d) and (IPAddress in (IOCs) or RemoteIP in (IOCs))\n| sort by Timestamp asc")
     if len(SHA256_list) > 0 or len(SHA1_list) > 0 or len(MD5_list) > 0:
         print(text_colour("\n// File Hash Hunting Search","green"))
         SHA256_QueryString = "\",\"".join(SHA256_list)
@@ -158,15 +158,15 @@ def create_hunting_queries(df):
         Filters = set()
 
         if len(SHA256_QueryString) > 0:
-            QueryString += "let SHA256_IOCs = dynamic([" + SHA256_QueryString + "]);\n"
+            QueryString += "let SHA256_IOCs = dynamic([\"" + SHA256_QueryString + "\"]);\n"
             Filters.add("SHA256 in~ (SHA256_IOCs)")
         
         if len(SHA1_QueryString) > 0:
-            QueryString += "let SHA256_IOCs = dynamic([" + SHA1_QueryString + "]);\n"
+            QueryString += "let SHA256_IOCs = dynamic([\"" + SHA1_QueryString + "\"]);\n"
             Filters.add("SHA1 in~ (SHA1_IOCs)")
 
         if len(SHA256_QueryString) > 0:
-            QueryString += "let MD5_IOCs = dynamic([" + MD5_QueryString + "]);\n"
+            QueryString += "let MD5_IOCs = dynamic([\"" + MD5_QueryString + "\"]);\n"
             Filters.add("MD5 in~ (MD5_IOCs)")
         
         WhereClause += " or ".join(Filters)
