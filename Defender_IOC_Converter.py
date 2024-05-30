@@ -145,7 +145,6 @@ def create_hunting_queries(df):
         print("let IOCs = dynamic([\"" + "\",\"".join(Domains) + "\"]);\nunion DeviceNetworkEvents, EmailUrlInfo, UrlClickEvents\n| where Timestamp > ago(30d) and (Url has_any (IOCs) or RemoteUrl has_any (IOCs) or AdditionalFields has_any (IOCs))\n| sort by Timestamp asc")
     if len(IPs) > 0:
         print(text_colour("\n// IP Hunting Search","green"))
-        print("DeviceNetworkEvents\n| where Timestamp > ago(30d) and RemoteIP in (\"" + "\",\"".join(IPs) + "\")")
         print("let IOCs = dynamic([\"" + "\",\"".join(IPs) + "\"]);\nunion DeviceNetworkEvents, CloudAppEvents, AADSignInEventsBeta\n| where Timestamp > ago(30d) and (IPAddress in (IOCs) or RemoteIP in (IOCs))\n| sort by Timestamp asc")
     if len(SHA256_list) > 0 or len(SHA1_list) > 0 or len(MD5_list) > 0:
         print(text_colour("\n// File Hash Hunting Search","green"))
