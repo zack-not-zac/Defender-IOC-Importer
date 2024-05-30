@@ -161,10 +161,10 @@ def create_hunting_queries(df):
             Filters.add("SHA256 in~ (SHA256_IOCs)")
         
         if len(SHA1_QueryString) > 0:
-            QueryString += "let SHA256_IOCs = dynamic([\"" + SHA1_QueryString + "\"]);\n"
+            QueryString += "let SHA1_IOCs = dynamic([\"" + SHA1_QueryString + "\"]);\n"
             Filters.add("SHA1 in~ (SHA1_IOCs)")
 
-        if len(SHA256_QueryString) > 0:
+        if len(MD5_QueryString) > 0:
             QueryString += "let MD5_IOCs = dynamic([\"" + MD5_QueryString + "\"]);\n"
             Filters.add("MD5 in~ (MD5_IOCs)")
         
