@@ -169,7 +169,7 @@ def create_hunting_queries(df):
             Filters.add("MD5 in~ (MD5_IOCs)")
         
         WhereClause += " or ".join(Filters)
-        QueryString += "union DeviceFileEvents, DeviceImageLoadEvents, EmailAttachmentInfo, DeviceProcessEvents" + WhereClause + "\n| sort by Timestamp asc"
+        QueryString += "union DeviceFileEvents, DeviceImageLoadEvents, EmailAttachmentInfo, DeviceProcessEvents\n" + WhereClause + ")\n| sort by Timestamp asc"
         
         print(QueryString)
 
