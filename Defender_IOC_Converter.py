@@ -2,7 +2,7 @@
 
 from pandas import read_csv, DataFrame, Series, concat
 import argparse
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from re import search as regex_search, findall as regex_find, sub as regex_sub
 from pathlib import Path
 from termcolor import colored as text_colour
@@ -27,8 +27,8 @@ def get_args():
 
     # Other Args
     parser.add_argument("-description",help="Set a custom description for IOC's",default="")
-    parser.add_argument("-domain_expiry",help="Set expiry for domain & URL IOC's - default = 3 months",default=datetime.utcnow()+timedelta(weeks=12))
-    parser.add_argument("-IP_expiry",help="Set expiry for IP IOC's - default = 1 month",default=datetime.utcnow()+timedelta(weeks=4))
+    parser.add_argument("-domain_expiry",help="Set expiry for domain & URL IOC's - default = 3 months",default=datetime.now(timezone.utc)+timedelta(weeks=12))
+    parser.add_argument("-IP_expiry",help="Set expiry for IP IOC's - default = 1 month",default=datetime.now(timezone.utc)++timedelta(weeks=4))
     parser.add_argument("-hash_expiry",help="Set expiry for domain & URL IOC's - default = Never",default="")
     parser.add_argument("-actions",help="Set recommended actions for IOC's",default="")
     parser.add_argument("-groups",help="Set RBAC groups for IOC's (comma seperated)",default="")
@@ -58,19 +58,19 @@ def format_item(item,expiry_dict, args):
         desc = Path(args.file).stem
 
     # Regex statements
-    domain_re = "([\w\.\-]+\.[\w\-]+(?=\/|:|$))"
-    url_re="[\w\.\-]+\/.{1,}"
-    ip_re="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
-    SHA256_re="^[A-Fa-f0-9]{64}$"
-    SHA1_re="^[A-Fa-f0-9]{40}$"
-    MD5_re="^[a-fA-F\d]{32}$"
+    domain_re=r"([\w\.\-]+\.[\w\-]+(?=\/|:|$))"
+    url_re=r"[\w\.\-]+\/.{1,}"
+    ip_re=r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+    SHA256_re=r"^[A-Fa-f0-9]{64}$"
+    SHA1_re=r"^[A-Fa-f0-9]{40}$"
+    MD5_re=r"^[a-fA-F\d]{32}$"
 
     const_columns = [sev,title,desc,actions,groups,category,techniques,str(alert).upper()]
 
     if regex_search(url_re,item) and extract_URLs:                              # URL IOC
         IOC_type="Url"
         action="Block"                                                          # Valid actions for domain/URL IOC are: Allow, Audit, Warn, Block
-        indicator=regex_sub("^https\:\/\/|^http\:\/\/","",item)                 # Removes HTTP & HTTPS
+        indicator=regex_sub(r"^https\:\/\/|^http\:\/\/","",item)                 # Removes HTTP & HTTPS
         item_obj = [IOC_type,indicator,convert_timestamp(expiry_dict[IOC_type]),action]            # Extracts domain from a URL
     elif regex_search(ip_re,item):                                              # IP IOC
         IOC_type="IpAddress"
@@ -83,7 +83,7 @@ def format_item(item,expiry_dict, args):
     elif regex_search(domain_re,item):                                          # Domain IOC
         IOC_type="DomainName"
         action="Block"                                                          # Valid actions for domain/URL IOC are: Allow, Audit, Warn, Block
-        indicator=regex_sub("^https\:\/\/|^http\:\/\/","",item)                 # Removes HTTP & HTTPS
+        indicator=regex_sub(r"^https\:\/\/|^http\:\/\/","",item)                 # Removes HTTP & HTTPS
         indicator = regex_find(domain_re,indicator)[0]                          # Extracts domain from a URL
         item_obj = [IOC_type,indicator,convert_timestamp(expiry_dict[IOC_type]),action]            
     elif regex_search(SHA256_re,item):                                          # SHA256 IOC
@@ -185,7 +185,7 @@ def expand_cidr_ranges(IOCs):# Expands any CIDR ranges in the given series, retu
 
     for index,IOC in IOCs.items():
         temp = IOC.replace("[.]",".")                                      # Removes any defanging
-        if regex_search("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}$",temp):
+        if regex_search(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}$",temp):
             drop_indexes.add(index)                                        # Adds index to indexes to be removed
             IOCs = concat([IOCs,parse_cidr(temp)], ignore_index=True)      # Add list of IP's from CIDR
             
